@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Compartir Ubicación en Vivo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+            background-color: #f0f0f0;
+        }
+
+        #map {
+            height: 400px;
+            width: 100%;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 18px;
+            margin: 20px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Compartir mi ubicación en tiempo real</h1>
+    <p>Pulsa el botón para empezar a compartir tu ubicación paso a paso.</p>
+    <button id="startTracking">Iniciar Seguimiento</button>
+
+    <div id="map"></div>
+    <p id="location"></p>
+
+    <script>
+        let map, marker;
+
+        function initMap(lat, lng) {
+            const mapOptions = {
+                zoom: 15,
+                center: { lat: lat, lng: lng }
+            };
+            map = new google.maps.Map(document.getElementById("map"), mapOptions);
+            marker = new google.maps.Marker({
+                position: { lat: lat, lng: lng },
+                map: map,
+                title: "Tu ubicación"
+            });
+        }
+
+        function updateMap(lat, lng) {
+            const location = new google.maps.LatLng(lat, lng);
+            marker.setPosition(location);
+            map.setCenter(location);
+        }
+
+        document.getElementById("startTracking").addEventListener("click", () => {
+            if (navigator.geolocation) {
+                navigator.geolocation.watchPosition((position) => {
+                    const lat = position.coords.latitude;
+                    const lng = position.coords.longitude;
+
+                    document.getElementById("location").textContent = `Latitud: ${lat}, Longitud: ${lng}`;
+
+                    if (!map) {
+                        initMap(lat, lng);
+                    } else {
+                        updateMap(lat, lng);
+                    }
+                }, (error) => {
+                    alert("Error obteniendo la ubicación: " + error.message);
+                }, {
+                    enableHighAccuracy: true,
+                    maximumAge: 10000,
+                    timeout: 5000
+                });
+            } else {
+                alert("La geolocalización no es compatible con este navegador.");
+            }
+        });
+    </script>
+
+    <!-- API de Google Maps (sustituye TU_API_KEY por tu clave) -->
+    <script async defer src="https://maps.googleapis.com/maps/api/js?AIzaSyA82xxMbarkbfD8NYFGGxtdt0AaeXBtkZo&callback=initMap"></script>
+    
+</body>
+</html>
